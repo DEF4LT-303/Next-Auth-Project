@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { UserRole } from "@prisma/client"
 import NextAuth from "next-auth"
+import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation"
 import { getUserById } from "./data/user"
 
 export const {
@@ -32,6 +33,18 @@ export const {
 
       // Only allow users with verified emails
       if (!existingUser?.emailVerified) return false;
+
+      // 2FA check
+      if (existingUser?.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
+
+        if (!twoFactorConfirmation) return false;
+
+        // Delete the confirmation so it can't be used again
+        await db.twoFactorConfirmation.delete({
+          where: { id: twoFactorConfirmation.id }
+        })
+      }
 
       return true;
     },
