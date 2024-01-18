@@ -37,7 +37,7 @@ const SettingsPage = () => {
   const user = currentUser();
 
   const { update } = useSession();
-  const [pending, isPending] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
 
@@ -54,22 +54,24 @@ const SettingsPage = () => {
   });
 
   const onClick = (values: z.infer<typeof settingsSchema>) => {
-    settings(values)
-      .then((data) => {
-        if (data.error) {
-          setSuccess(undefined);
-          setError(data.error);
-        }
+    startTransition(() => {
+      settings(values)
+        .then((data) => {
+          if (data.error) {
+            setSuccess(undefined);
+            setError(data.error);
+          }
 
-        if (data.success) {
-          update();
-          setError(undefined);
-          setSuccess(data.success);
-        }
-      })
-      .catch(() => {
-        setError('An unknown error occurred.');
-      });
+          if (data.success) {
+            update();
+            setError(undefined);
+            setSuccess(data.success);
+          }
+        })
+        .catch(() => {
+          setError('An unknown error occurred.');
+        });
+    });
   };
 
   return (
@@ -92,7 +94,7 @@ const SettingsPage = () => {
                         {...field}
                         placeholder='John Doe'
                         type='text'
-                        disabled={pending}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -112,7 +114,7 @@ const SettingsPage = () => {
                             {...field}
                             placeholder='johndoe@example.com'
                             type='email'
-                            disabled={pending}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
@@ -131,7 +133,7 @@ const SettingsPage = () => {
                             {...field}
                             placeholder='*****'
                             type='password'
-                            disabled={pending}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
@@ -150,7 +152,7 @@ const SettingsPage = () => {
                             {...field}
                             placeholder='*****'
                             type='password'
-                            disabled={pending}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
@@ -167,7 +169,7 @@ const SettingsPage = () => {
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <Select
-                      disabled={pending}
+                      disabled={isPending}
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
@@ -199,7 +201,7 @@ const SettingsPage = () => {
                       </div>
                       <FormControl>
                         <Switch
-                          disabled={pending}
+                          disabled={isPending}
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
@@ -211,7 +213,7 @@ const SettingsPage = () => {
             </div>
             {!success && <FormError message={error} />}
             {!error && <FormSuccess message={success} />}
-            <Button type='submit' disabled={pending}>
+            <Button type='submit' disabled={isPending}>
               Save
             </Button>
           </form>
