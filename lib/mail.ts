@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { mailOptions, transporter } from "./nodemailer";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -8,8 +9,15 @@ export const sendVerificationEmail = async (
 ) => {
   const confirmLink = `http://localhost:3000/auth/new-verification?token=${token}`
 
-  await resend.emails.send({
-    from: 'onboarding@resend.dev',
+  // await resend.emails.send({
+  //   from: 'onboarding@resend.dev',
+  //   to: email,
+  //   subject: 'Confirm your email',
+  //   html: `<p>Click <a href="${confirmLink}">here</a> to confirm email.</p>`
+  // })
+
+  await transporter.sendMail({
+    ...mailOptions,
     to: email,
     subject: 'Confirm your email',
     html: `<p>Click <a href="${confirmLink}">here</a> to confirm email.</p>`
@@ -22,8 +30,15 @@ export const sendPasswordResetEmail = async (
 ) => {
   const resetLink = `http://localhost:3000/auth/new-password?token=${token}`
 
-  await resend.emails.send({
-    from: 'onboarding@resend.dev',
+  // await resend.emails.send({
+  //   from: 'onboarding@resend.dev',
+  //   to: email,
+  //   subject: 'Reset your password',
+  //   html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
+  // })
+
+  await transporter.sendMail({
+    ...mailOptions,
     to: email,
     subject: 'Reset your password',
     html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
@@ -31,8 +46,15 @@ export const sendPasswordResetEmail = async (
 }
 
 export const sendTwoFactorEmail = async (email: string, token: string) => {
-  await resend.emails.send({
-    from: 'onboarding@resend.dev',
+  // await resend.emails.send({
+  //   from: 'onboarding@resend.dev',
+  //   to: email,
+  //   subject: 'Confirm your email',
+  //   html: `<p>Your 2FA code: <b>${token}</b></p>`
+  // })
+
+  await transporter.sendMail({
+    ...mailOptions,
     to: email,
     subject: 'Confirm your email',
     html: `<p>Your 2FA code: <b>${token}</b></p>`
